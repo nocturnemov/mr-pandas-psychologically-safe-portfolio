@@ -1,37 +1,49 @@
 .introScreen {
   position: fixed;
-  top: 0;
-  left: 0;
-  background: rgb(247, 192, 83);
-  height: 100vh;
-  width: 100vw;
+  inset: 0;
   z-index: 100;
-  color: rgb(126, 85, 2);
+  background: #f7f6f1;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0 37px,
+    rgba(96, 140, 200, 0.35) 37px 39px
+  );
+  color: #3b3a36;
 }
 
-.introScreenContent {
+.content {
   height: 100%;
-  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   text-align: center;
-  line-height: 24px;
-  gap: 12px;
+  gap: 14px;
+
+  p {
+    font-size: 15px;
+    color: #6b6a64;
+  }
 }
 
-.progressBarContainer {
+.name {
+  font-family: "Caveat", cursive;
+  font-size: 96px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+.track {
   width: 200px;
   height: 8px;
-  background-color: rgba(126, 85, 2, 0.3);
   border-radius: 4px;
   overflow: hidden;
+  background: rgba(59, 58, 54, 0.15);
 }
 
-.progressBar {
+.bar {
   height: 100%;
-  background-color: rgb(126, 85, 2);
-  transition: width 0.3s ease-in;
+  width: 15%;
   border-radius: 4px;
+  background: #ef7f6a;
 }

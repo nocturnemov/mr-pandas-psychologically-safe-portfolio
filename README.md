@@ -1,36 +1,69 @@
-# 😊 Mr. Panda's Psychologically Safe Portfolio 🐼
+# Daniel's paper portfolio
 
-**[Live site](https://www.mr-pandas-psychologically-safe-portfolio.com/)** | **[Article](https://tympanus.net/codrops/2025/12/30/the-increasing-importance-of-psychological-safety-and-self-awareness-for-creative-work/?_thumbnail_id=107253)** | **[Tutorial](https://www.youtube.com/watch?v=zyWD2E8AHCg&feature=youtu.be)**
+A scroll-driven paper-craft world: the camera glides along a curve through four little scenes, a paper puppet on a stick walks with you, and clicking a cutout opens a note card. It loops forever.
 
-This repo contains code of Mr. Panda's Portfolio for a Codrops article!! It's a concept portfolio website created with [Blender](https://www.blender.org/), [Three.js](https://threejs.org/), and [Krita](https://krita.org/en/). Let's fight back against toxicity in the creative industry.
+Forked from [Mr. Panda's Psychologically Safe Portfolio](https://github.com/andrewwoan/mr-pandas-psychologically-safe-portfolio) by Andrew Woan (MIT, see `LICENSE.md`). The camera/loop engine is his. The scenes, character, panels and content are new placeholders.
 
-![Page screenshot](public/media/og-image.webp?raw=true "Page What")
+## Run it
 
-# Credits!!! 💖
+```bash
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # production build in dist/
+```
 
-- [Intro Screen Font](https://fonts.google.com/specimen/Plus+Jakarta+Sans)
-- [Notebook Paper Material](https://superhivemarket.com/products/crafty-asset-pack)
-- [On a stick idea](https://x.com/mesqme)
-- [Dragon Reference Image](https://studycli.org/chinese-culture/chinese-dragons/)
-- [Tracing Kpop Demon Hunters Image](https://media-cldnry.s-nbcnews.com/image/upload/t_fit-1000w,f_auto,q_auto:best/rockcms/2025-07/250709-Kpop-Demon-Hunters-vl-256p-ea5850.jpg)
-- [Egyption Artifact Reference Image One](https://www.teacherspayteachers.com/Product/Egyptian-Artifacts-Clipart-Set-1-4283355)
-- [Egyption Artifact Reference Image Two](https://media.istockphoto.com/id/1188022995/vector/egyptian-artifacts-vector-illustration-a-set-of-sacred-symbols-and-decorations-of-ancient.jpg?s=612x612&w=0&k=20&c=K0eAV0wofNJhBxAXtAZOQHHHUiiUMGUcucgx5tvIzyc=)
+Deploys to Vercel as-is (`vercel.json` is included).
 
-# Extra info
+Controls: mouse wheel, click-and-drag, touch swipe, or arrow keys / Page Up / Page Down.
 
-- Won [FWA of the day!](https://thefwa.com/cases/mr-pandas-psychologically-safe-portfolio).
-- Won [SOTD on Awwwards!](https://www.awwwards.com/sites/mr-pandas-paper-portfolio).
+## Where things live
 
-# Areas of improvement / things to do
+| What | File |
+|---|---|
+| All text: name, tagline, project panels, links | `src/content.js` |
+| Scene layout: what sits where | `src/Experience/World.jsx` |
+| Placeholder drawings (canvas, hand-drawn style) | `src/Experience/paper/drawings.js` |
+| Paper cutout component (white edge, shadow, hover, click) | `src/Experience/paper/Cutout.jsx` |
+| Notebook wall + ground | `src/Experience/paper/Paper.jsx` |
+| Camera path, look angles, puppet path | `src/Experience/components/curve.jsx` |
+| Puppet on a stick | `src/Experience/Character.jsx` |
+| Scroll/drag/keyboard input | `src/Experience/Experience.jsx` |
+| Loop logic (from the original) | `src/Experience/Scene.jsx`, `hooks/useScrollCurve.js` |
+| Note-card overlay | `src/components/Panel/` |
 
-- Repetitive code could be cleaned up lol
-- Generate hitboxes for hovered items that way it won't leave the area and flicker back constantly.
-- Add some cool burning paper shader effects.
-- Add a night mode.
-- Use texture atlases/spritesheets for animations.
-- More easter eggs.
-- Try making one that go forwards and diagonal or rotates camera upside down.
-- Try making different scenes and cute paper animations like a campfire.
-- Better loading screen.
-- Text box so the panda says some stuff.
-- Adjust curve for mobile devices.
+### Add a clickable thing
+
+1. Add a panel entry in `src/content.js`, e.g. `myproject: { title, kicker, body: [...], links: [...] }`.
+2. Add a drawing function in `drawings.js` (or reuse one).
+3. Drop it into `World.jsx`:
+   ```jsx
+   <Cutout id="myproject" draw={D.myDrawing} w={600} h={600} height={2} position={[x, 0, -2.6]} panel="myproject" />
+   ```
+   `x` must stay within the tile, between −23 and 43. `y = 0` is the ground. `z` around −2 to −3.5 sits in front of the wall.
+
+### Use a real drawing instead of a canvas doodle
+
+Draw it in Krita/Procreate, export a transparent PNG to `public/art/`, then:
+
+```js
+const img = new Image(); img.src = "/art/willem.png"; await img.decode();
+export const willemArt = (ctx, w, h) => ctx.drawImage(img, 0, 0, w, h);
+```
+
+(Load images before the textures are built, the same way `App.jsx` waits for the font.)
+
+### Swap in Blender models
+
+The original site built each scene in Blender, baked the textures, and exported `.glb` files. To do the same:
+
+1. Model the scene in Blender with paper-thin planes. Keep the same scale (1 unit ≈ 1 m, ground at y = 0).
+2. Export as glTF Binary (`.glb`) into `public/models/`.
+3. Run `npx gltfjsx public/models/scene.glb` to generate a component, then render it inside `<Tile>` in `World.jsx`.
+4. To change the camera path, draw a curve in Blender and export it with `Blender File and Addon/curve_to_points.py`, then paste the points into `curve.jsx`.
+
+**Keep the loop seamless:** the tile width (`TILE_W` in `Paper.jsx`) must equal `SHIFT_X_AMOUNT` in `curve.jsx` (66 right now).
+
+## Credits
+
+- Engine and concept: Andrew Woan, [Mr. Panda's Psychologically Safe Portfolio](https://github.com/andrewwoan/mr-pandas-psychologically-safe-portfolio) (MIT)
+- Fonts: Plus Jakarta Sans and Caveat (Google Fonts, OFL)
