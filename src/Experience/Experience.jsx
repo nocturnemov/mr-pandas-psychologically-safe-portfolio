@@ -1,6 +1,7 @@
-import React, { useRef, useEffect, useMemo } from "react";
-import { Canvas, extend, useThree } from "@react-three/fiber";
-import { PerspectiveCamera, OrbitControls } from "@react-three/drei";
+import { useRef, useEffect } from "react";
+import { Canvas, extend } from "@react-three/fiber";
+import { PerspectiveCamera } from "@react-three/drei";
+import { useUI } from "../store";
 import Scene from "./Scene";
 import * as THREE from "three/webgpu";
 import normalizeWheel from "normalize-wheel";
@@ -19,7 +20,10 @@ const Experience = () => {
   const lastTouchY = useRef(null);
 
   useEffect(() => {
+    const paused = () => useUI.getState().openPanel !== null;
+
     const handleWheel = (e) => {
+      if (paused()) return;
       const normalized = normalizeWheel(e);
 
       targetScrollProgress.current +=
@@ -47,6 +51,7 @@ const Experience = () => {
     };
 
     const handleTouchStart = (e) => {
+      if (paused()) return;
       isSwiping.current = true;
       lastTouchY.current = e.touches[0].clientY;
     };
@@ -72,7 +77,7 @@ const Experience = () => {
     };
 
     const handleMouseDown = (e) => {
-      if (e.pointerType === "touch") return;
+      if (e.pointerType === "touch" || paused()) return;
       isSwiping.current = true;
     };
 
@@ -80,15 +85,22 @@ const Experience = () => {
       if (!isSwiping.current || e.pointerType === "touch") return;
       const mouseMultiplier = 0.2;
       targetScrollProgress.current +=
-        Math.sign(e.movementY) * scrollSpeed * mouseMultiplier;
+        Math.sign(e.movementY) * baseScrollSpeed * mouseMultiplier * scrollSpeedMultiplier.current;
     };
 
     const handleMouseUp = () => {
       isSwiping.current = false;
     };
 
+    const handleKey = (e) => {
+      if (paused()) return;
+      const dir = { ArrowDown: 1, ArrowRight: 1, PageDown: 3, ArrowUp: -1, ArrowLeft: -1, PageUp: -3 }[e.key];
+      if (dir) targetScrollProgress.current += dir * baseScrollSpeed * 3 * scrollSpeedMultiplier.current;
+    };
+    window.addEventListener("keydown", handleKey);
     window.addEventListener("wheel", handleWheel, { passive: false });
     window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousedown", handleMouseDown);
     window.addEventListener("mousemove", handleMouseDrag);
     window.addEventListener("mouseup", handleMouseUp);
     window.addEventListener("touchstart", handleTouchStart, { passive: false });
@@ -96,6 +108,7 @@ const Experience = () => {
     window.addEventListener("touchend", handleTouchEnd);
 
     return () => {
+      window.removeEventListener("keydown", handleKey);
       window.removeEventListener("wheel", handleWheel);
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("mousedown", handleMouseDown);
@@ -109,7 +122,6 @@ const Experience = () => {
 
   return (
     <Canvas
-      shadows
       flat={true}
       gl={(props) => {
         extend(THREE);
@@ -136,7 +148,6 @@ const Experience = () => {
           fov={35}
           // position={[0, 0, 30]}
         />
-        {/* <OrbitControls enableZoom={false} enableRotate={false} /> */}
       </group>
     </Canvas>
   );

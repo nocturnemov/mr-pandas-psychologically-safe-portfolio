@@ -1,13 +1,8 @@
-import { React, Suspense, useState, useRef } from "react";
+import { Suspense, useState, useRef } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
-import MovingObjects from "./models/Moving_Objects";
-import SceneOne from "./models/SceneOne";
-import SceneTwo from "./models/SceneTwo";
-import SceneThree from "./models/SceneThree";
-import SceneFour from "./models/SceneFour";
-import SingleSheet from "./models/SingleSheet";
-import Panda from "./models/Panda";
+import World from "./World";
+import Character from "./Character";
 import {
   cameraCurve as initialCameraCurve,
   initialCameraPoints,
@@ -18,8 +13,6 @@ import { useScrollCurve } from "./hooks/useScrollCurve";
 
 const WORLD_FORWARD_TRIGGER = 0.92;
 const WORLD_BACK_TRIGGER = 0.91;
-const SINGLE_FORWARD_TRIGGER = 0.5;
-const SINGLE_BACK_TRIGGER = 0.35;
 
 const Scene = ({
   cameraGroup,
@@ -38,7 +31,6 @@ const Scene = ({
   );
 
   const sceneGroupRef = useRef();
-  const singleSheetRef = useRef();
 
   const shiftWorld = (direction = "forward") => {
     if (!sceneGroupRef.current) return;
@@ -47,15 +39,6 @@ const Scene = ({
         ? SHIFT_X_AMOUNT * cameraScrollCurve.loopCounter.current
         : SHIFT_X_AMOUNT * (cameraScrollCurve.loopCounter.current - 1);
     sceneGroupRef.current.position.x = offset;
-  };
-
-  const shiftSingleSheet = (direction = "forward") => {
-    if (!singleSheetRef.current) return;
-    const offset =
-      direction === "forward"
-        ? SHIFT_X_AMOUNT * cameraScrollCurve.loopCounter.current
-        : SHIFT_X_AMOUNT * (cameraScrollCurve.loopCounter.current - 1);
-    singleSheetRef.current.position.x = offset;
   };
 
   const [rotationBufferQuat] = useState(
@@ -159,18 +142,6 @@ const Scene = ({
     ) {
       shiftWorld("backward");
     }
-    if (
-      newProgress >= SINGLE_FORWARD_TRIGGER &&
-      !cameraScrollCurve.transitionCurveActive.current
-    ) {
-      shiftSingleSheet("forward");
-    }
-    if (
-      newProgress <= SINGLE_BACK_TRIGGER &&
-      !cameraScrollCurve.transitionCurveActive.current
-    ) {
-      shiftSingleSheet("backward");
-    }
 
     const basePoint = cameraScrollCurve.getCurrentPoint(newProgress);
 
@@ -221,25 +192,12 @@ const Scene = ({
   });
 
   return (
-    <>
-      <Suspense fallback={null}>
-        <group ref={sceneGroupRef}>
-          <MovingObjects scrollProgress={scrollProgress} />
-          <SceneOne />
-          <SceneTwo />
-          <SceneThree scrollProgress={scrollProgress} />
-          <SceneFour />
-        </group>
-
-        <Panda
-          scrollProgress={scrollProgress}
-          cameraScrollCurve={cameraScrollCurve}
-        />
-        <group ref={singleSheetRef}>
-          <SingleSheet scrollProgress={scrollProgress} />
-        </group>
-      </Suspense>
-    </>
+    <Suspense fallback={null}>
+      <group ref={sceneGroupRef}>
+        <World />
+      </group>
+      <Character scrollProgress={scrollProgress} cameraScrollCurve={cameraScrollCurve} />
+    </Suspense>
   );
 };
 

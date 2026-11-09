@@ -10,21 +10,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource/caveat": "^5.3.0",
     "@gsap/react": "^2.1.2",
     "@react-three/drei": "^10.7.7",
     "@react-three/fiber": "^9.4.2",
-    "@tonejs/midi": "^2.0.28",
     "gsap": "^3.12.7",
-    "leva": "^0.10.0",
     "normalize-wheel": "^1.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-router": "^7.2.0",
-    "react-transition-group": "^4.4.5",
-    "remove": "^0.1.5",
     "sass": "^1.85.1",
     "three": "^0.182.0",
-    "troika-three-text": "^0.52.4",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

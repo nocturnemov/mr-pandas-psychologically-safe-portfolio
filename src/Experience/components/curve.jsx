@@ -1,199 +1,47 @@
 import * as THREE from "three";
 
-const depthZValue = 5;
-const heightYValueAdjustment = 2;
+// Camera path through one world tile.
+// Tip: draw this curve in Blender and export it with
+// "Blender File and Addon/curve_to_points.py" instead of hand-editing.
 
-const LAST_X = 36.005978;
-const FIRST_X = -20.202141;
-export const SHIFT_X_AMOUNT = LAST_X - FIRST_X + 6.62;
-const test = 0;
+const FIRST_X = -20;
+const LAST_X = 40;
+const LOOP_GAP = 6; // distance of the quick "jump" segment between loops
+export const SHIFT_X_AMOUNT = LAST_X - FIRST_X + LOOP_GAP; // 66 — must match TILE_W
 
-export const initialCameraPoints = [
-  // Scene 1
-  new THREE.Vector3(-20.202141, -0.183518 + heightYValueAdjustment, 5 + test),
-  new THREE.Vector3(-15.8032, 0.336296 + heightYValueAdjustment, 8 + test),
-  new THREE.Vector3(-11.971144, 1.203873 + heightYValueAdjustment, 9 + test),
-  new THREE.Vector3(-4.681061, 2.775572 + heightYValueAdjustment, 9 + test),
-
-  // Right Before ship
-  new THREE.Vector3(2.74859, 2.177679 + heightYValueAdjustment, 7.5 + test),
-
-  // Right before camel
-  new THREE.Vector3(8.42627, 2.705159 + heightYValueAdjustment, 8 + test),
-
-  //Camel start
-  new THREE.Vector3(14.909897, 1.517222 + heightYValueAdjustment, 7.3 + test),
-  new THREE.Vector3(21.697693, 3.17222 + heightYValueAdjustment, 7.3 + test),
-  new THREE.Vector3(
-    26.066216,
-    4.106054 + heightYValueAdjustment,
-    depthZValue + test,
-  ),
-  new THREE.Vector3(
-    31.030914,
-    4.106054 + heightYValueAdjustment,
-    depthZValue + test,
-  ),
-  new THREE.Vector3(
-    36.005978,
-    3.91222 + heightYValueAdjustment,
-    depthZValue + test,
-  ),
+const cam = [
+  // x,    y,    z
+  [-20, 2.4, 8.2], // hello
+  [-14, 2.5, 8.6],
+  [-8, 2.6, 8.8],
+  [-2, 2.5, 8.4], // Willem
+  [4, 2.4, 8.0],
+  [10, 2.5, 8.4], // Accountable
+  [16, 2.6, 8.6], // BridgeAI
+  [22, 2.5, 8.2], // Rise
+  [28, 2.4, 8.0], // 3D
+  [34, 2.4, 8.2], // contact
+  [40, 2.5, 8.4], // outro
 ];
 
+export const initialCameraPoints = cam.map(([x, y, z]) => new THREE.Vector3(x, y, z));
 export const cameraCurve = new THREE.CatmullRomCurve3(initialCameraPoints);
 cameraCurve.curveType = "centripetal";
 
+// Camera look direction at points along the path (progress 0 → 1).
+const e = (x, y) => new THREE.Euler(x, y, 0);
 export const rotationTargets = [
-  {
-    progress: 0,
-    rotation: new THREE.Euler(
-      -0.0017043241744864842,
-      -0.22064811124855913,
-      -0.0003730122560727475,
-    ),
-  },
-  {
-    progress: 0.1445,
-    rotation: new THREE.Euler(
-      -0.06419977307905109,
-      -0.08888115648279392,
-      -0.00570642026054557,
-    ),
-  },
-  {
-    progress: 0.3229,
-    rotation: new THREE.Euler(
-      -0.229101220729035,
-      -0.027356265132564273,
-      -0.006378475999996003,
-    ),
-  },
-  {
-    progress: 0.3995,
-    rotation: new THREE.Euler(
-      -0.21490963788572381,
-      0.07946656300948479,
-      0.01732601995022464,
-    ),
-  },
-  {
-    progress: 0.425,
-    rotation: new THREE.Euler(
-      -0.15971723485809433,
-      0.04670528046769929,
-      0.007520846163953575,
-    ),
-  },
-  {
-    progress: 0.493,
-    rotation: new THREE.Euler(
-      -0.15103232459264546,
-      0.00498848150386255,
-      0.0007592001306001002,
-    ),
-  },
-  {
-    progress: 0.5355,
-    rotation: new THREE.Euler(
-      -0.024867780069863777,
-      -0.023369051346196712,
-      -0.0005812032825821626,
-    ),
-  },
-  {
-    progress: 0.6,
-    rotation: new THREE.Euler(
-      0.045197053301981635,
-      -0.006583935578690767,
-      0.0002977751186144598,
-    ),
-  },
-  {
-    progress: 0.6629,
-    rotation: new THREE.Euler(
-      -0.09476188265977611,
-      0.12518540275964718,
-      0.011866830817320508,
-    ),
-  },
-  //Right after haunted house
-  {
-    progress: 0.7195,
-    rotation: new THREE.Euler(
-      -0.03936093252874196,
-      -0.09166906996940853,
-      -0.0036049751059469247,
-    ),
-  },
-  {
-    progress: 0.8129,
-    rotation: new THREE.Euler(
-      -0.07474327166814804,
-      0.051576095684842276,
-      0.003860429637009773,
-    ),
-  },
-  {
-    progress: 1,
-    rotation: new THREE.Euler(
-      -0.07474327166814804,
-      0.051576095684842276,
-      0.003860429637009773,
-    ),
-  },
+  { progress: 0, rotation: e(-0.07, -0.12) },
+  { progress: 0.2, rotation: e(-0.08, 0.02) },
+  { progress: 0.4, rotation: e(-0.07, -0.04) },
+  { progress: 0.6, rotation: e(-0.08, 0.05) },
+  { progress: 0.8, rotation: e(-0.07, -0.03) },
+  { progress: 1, rotation: e(-0.07, 0.0) },
 ];
 
-// Extra curves
-const PANDA_LAST_X = 36.005978;
-const PANDA_FIRST_X = -20.650911;
-export const PANDA_SHIFT_X_AMOUNT = PANDA_LAST_X - PANDA_FIRST_X + 6.17;
-const pandaCurveHeightAdjustment = -5.5;
-
-export const initialPandaPoints = [
-  new THREE.Vector3(
-    -20.50911,
-    0.790827 + pandaCurveHeightAdjustment,
-    -1.341367,
-  ),
-  new THREE.Vector3(
-    -15.077652,
-    0.790827 + pandaCurveHeightAdjustment,
-    -1.398876,
-  ),
-  new THREE.Vector3(
-    -9.425609,
-    0.790827 + pandaCurveHeightAdjustment,
-    -1.341367,
-  ),
-  new THREE.Vector3(
-    -3.599831,
-    0.731949 + pandaCurveHeightAdjustment,
-    -1.398876,
-  ),
-  new THREE.Vector3(1.926874, 1.49733 + pandaCurveHeightAdjustment, -1.341367),
-  new THREE.Vector3(7.588829, 2.235309 + pandaCurveHeightAdjustment, -1.387374),
-  new THREE.Vector3(
-    14.657124,
-    2.174377 + pandaCurveHeightAdjustment,
-    -1.398991,
-  ),
-  new THREE.Vector3(
-    21.697693,
-    2.423718 + pandaCurveHeightAdjustment,
-    -1.416137,
-  ),
-  new THREE.Vector3(24.653442, 3.91255 + pandaCurveHeightAdjustment, -1.473646),
-  new THREE.Vector3(
-    31.030914,
-    4.092358 + pandaCurveHeightAdjustment + 1,
-    -1.473646,
-  ),
-  new THREE.Vector3(
-    36.005978,
-    4.092358 + pandaCurveHeightAdjustment + 1,
-    -1.473646,
-  ),
-];
-
-export const pandaCurve = new THREE.CatmullRomCurve3(initialPandaPoints);
+// The character on a stick walks along the path, a little left of camera.
+export const CHARACTER_SHIFT_X_AMOUNT = SHIFT_X_AMOUNT;
+export const initialCharacterPoints = cam.map(
+  ([x], i) => new THREE.Vector3(x - 3.3, -0.55 + Math.sin(i * 1.3) * 0.08, 0.1)
+);
+export const characterCurve = new THREE.CatmullRomCurve3(initialCharacterPoints);
